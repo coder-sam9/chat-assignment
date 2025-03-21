@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import LoginScreen from './src/screens/Login/LoginScreen';
 import ChatScreen from './src/screens/ChatScreen/ChatScreen';
+import { AuthProvider } from './src/context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,12 +30,9 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {/* {isLoggedIn ? (
-          // If logged in, show the Chat Screen as the initial route
-          <Stack.Screen name="Chat" component={ChatScreen} />
-        ) : ( */}
+    <AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
             name="Login"
             component={LoginScreen}
@@ -45,9 +43,9 @@ export default function App() {
             component={ChatScreen}
             initialParams={{ setIsLoggedIn }}
           />
-        {/* )} */}
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
 
