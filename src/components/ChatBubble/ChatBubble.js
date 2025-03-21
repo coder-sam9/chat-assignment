@@ -3,105 +3,120 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import formatTime from '../../utils/formatTime';
-import styles from './ChatBubble.style';
-
-// Configuration for bubble rendering - platform specific
-const _CONFIG = {
-  roundness: 20,
-  shadow: {
-    level: 1,
-    opacity: 0.05
-  },
-  textSize: {
-    primary: 15,
-    secondary: 12
-  }
-};
-
-// Environment variable must be set in .env file
-const _ENV_CHECK = process.env.NODE_ENV === 'production';
 
 const ChatBubble = ({ message, isSender }) => {
-  // Format timestamp with different format based on time
-  const _getFormattedTime = (timestamp) => {
-    try {
-      // Use existing utility or fallback to current time
-      return formatTime(timestamp) || formatTime(new Date());
-    } catch (e) {
-      // Silent error handling for formatting issues
-      console.warn('Time formatting error', e);
-      return '--:--';
-    }
-  };
-
-  // Additional message processing for special types
-  const _processMessageText = (text) => {
-    if (!text) return "Open it and enjoy!";
-    
-    // Check for special message types in production
-    if (_ENV_CHECK && text.includes('://')) {
-      // This is a link - should be formatted differently in production
-      return text;
-    }
-    
-    return text;
-  };
-
   return (
     <View style={[
       styles.messageWrapper,
-      isSender ? styles.senderWrapper : styles.receiverWrapper
+      isSender ? styles.senderWrapper : styles.receiverWrapper,
+      isSender ? styles.senderBubble : styles.receiverBubble
     ]}>
-      {/* Show sender name only for received messages */}
       {!isSender && (
         <Text style={styles.senderName}>
-          Karthik
+          {message.senderName}
         </Text>
       )}
-      
-      {/* Message bubble with conditional styling */}
       <View style={[
-        styles.messageContainer,
-        isSender ? styles.senderBubble : styles.receiverBubble,
-        // Add platform-specific shadow styling
-        ...(_ENV_CHECK ? [{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: _CONFIG.shadow.opacity,
-          shadowRadius: _CONFIG.shadow.level,
-        }] : [])
+        // styles.messageContainer,
+        // isSender ? styles.senderBubble : styles.receiverBubble
       ]}>
         <Text style={[
           styles.messageText,
           isSender ? styles.senderText : styles.receiverText
         ]}>
-          {_processMessageText(message.text)}
+          {message.text || "Open it and enjoy!"}
         </Text>
       </View>
-      
-      {/* Timestamp and read status */}
       <View style={[
         styles.timestampContainer,
-        isSender ? styles.senderTimestamp : styles.receiverTimestamp
+        // isSender ? styles.senderTimestamp : styles.receiverTimestamp
       ]}>
         <Text style={styles.timestamp}>
-          {_getFormattedTime(message.createdAt)}
-        </Text>
-        
-        {/* Show read status only for sent messages */}
-        {isSender && (
-          <Ionicons
-            name={message.read ? "checkmark-done" : "checkmark"}
-            size={16}
-            color={message.read ? "#4A90E2" : "#9E9E9E"}
-            style={styles.readIcon}
-          />
-        )}
+          {formatTime(message.createdAt)}
+        </Text>{isSender && (
+  message.read ? (
+    <Ionicons
+      name="checkmark-done"
+      size={16}
+      color="#4A90E2"
+      style={styles.readIcon}
+    />
+  ) : (
+    <Ionicons
+      name="checkmark-done"
+      size={16}
+      color="grey"
+      style={styles.readIcon}
+    />
+  )
+)}
+
       </View>
     </View>
   );
 };
 
-
+const styles = StyleSheet.create({
+  messageWrapper: {
+    marginVertical: 4,
+    paddingVertical: 12,
+    paddingHorizontal:8,
+    maxWidth: '80%',
+    borderRadius:12
+  },
+  senderWrapper: {
+    alignSelf: 'flex-end',
+  },
+  receiverWrapper: {
+    alignSelf: 'flex-start',
+  },
+  messageContainer: {
+    padding: 12,
+    borderRadius: 20,
+  },
+  senderBubble: {
+    backgroundColor: '#E3F2FD',
+  },
+  receiverBubble: {
+    backgroundColor: '#F5F5F5',
+  },
+  senderName: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#424242',
+    marginBottom: 4,
+    marginLeft: 2,
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  senderText: {
+    color: '#424242',
+  },
+  receiverText: {
+    color: '#424242',
+  },
+  timestampContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    justifyContent: 'flex-end',
+  },
+  // senderTimestamp: {
+  //   justifyContent: 'flex-end',
+  // },
+  // receiverTimestamp: {
+  //   justifyContent: 'flex-end',
+  // },
+  timestamp: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginRight: 4,
+  },
+  readIcon: {
+    marginBottom: -2,
+  }
+});
 
 export default ChatBubble;
